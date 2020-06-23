@@ -2154,8 +2154,8 @@ public abstract class BaseWebDriverTest extends LabKeySiteWrapper implements Cle
                 refresh();
             }
 
-            clickAndWait(Locator.linkWithText("Manage Files"));
-            clickButton("Process and Import Data", defaultWaitForPage);
+            goToDataPipeline()
+                    .clickProcessData();
 
             for (File specimenArchive : _specimenArchives)
             {
@@ -2176,13 +2176,16 @@ public abstract class BaseWebDriverTest extends LabKeySiteWrapper implements Cle
             log("Waiting for completion of specimen archives");
 
             clickFolder(_studyFolderName);
-            goToDataPipeline();
+            PipelineStatusTable pipelineStatusTable = goToDataPipeline();
 
             waitForPipelineJobsToComplete(_completeJobsExpected, "specimen import", _expectError);
 
-            for (File copiedArchive : _copiedArchives)
-                if (!copiedArchive.delete())
-                    throw new RuntimeException("Couldn't delete copied specimen archive: " + copiedArchive.getAbsolutePath());
+            pipelineStatusTable.clickProcessData();
+            for (File specimenArchive : _specimenArchives)
+            {
+                _fileBrowserHelper.checkFileBrowserFileCheckbox(specimenArchive.getName());
+            }
+            _fileBrowserHelper.deleteSelectedFiles();
         }
     }
 
