@@ -461,11 +461,10 @@ public class StudyHelper
         return designerPage;
     }
 
-    public static File getStudyTempDir()
-    {
-        return new File(getPipelinePath(), "drt_temp");
-    }
-
+    /**
+     * @deprecated Avoid setting custom pipeline. Upload data instead.
+     */
+    @Deprecated
     public static String getPipelinePath()
     {
         return getSampleStudy().getAbsolutePath();

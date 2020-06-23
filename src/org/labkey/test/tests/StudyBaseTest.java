@@ -54,7 +54,6 @@ import static org.junit.Assert.assertEquals;
 @Deprecated
 public abstract class StudyBaseTest extends BaseWebDriverTest
 {
-    protected static final File ARCHIVE_TEMP_DIR = StudyHelper.getStudyTempDir();
     protected int datasetCount = getDatasetCount();
     protected int visitCount = 65;
 
@@ -147,7 +146,6 @@ public abstract class StudyBaseTest extends BaseWebDriverTest
         deleteLogFiles("datasets");
         TestFileUtils.deleteDir(new File(StudyHelper.getPipelinePath(), "assaydata"));
         TestFileUtils.deleteDir(new File(StudyHelper.getPipelinePath(), "reports_temp"));
-        TestFileUtils.deleteDir(ARCHIVE_TEMP_DIR);
     }
 
     private void deleteLogFiles(String directoryName)
