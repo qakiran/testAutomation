@@ -483,7 +483,7 @@ public class StudyHelper
 
     public static void uploadSampleStudy(String containerPath)
     {
-        new WebDavUploadHelper(containerPath).uploadDirectory(getSampleStudy());
+        new WebDavUploadHelper(containerPath).uploadDirectoryContents(getSampleStudy());
     }
 
     public enum TimepointType
