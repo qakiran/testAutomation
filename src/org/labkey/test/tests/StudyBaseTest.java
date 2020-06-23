@@ -113,7 +113,7 @@ public abstract class StudyBaseTest extends BaseWebDriverTest
     }
     protected void startSpecimenImport(int completeJobsExpected, File specimenArchive)
     {
-        _specimenImporter = new SpecimenImporter(new File(StudyHelper.getPipelinePath()), specimenArchive, ARCHIVE_TEMP_DIR, getFolderName(), completeJobsExpected);
+        _specimenImporter = new SpecimenImporter(specimenArchive, getFolderName(), completeJobsExpected);
         _specimenImporter.startImport();
     }
 

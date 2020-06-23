@@ -2107,35 +2107,21 @@ public abstract class BaseWebDriverTest extends LabKeySiteWrapper implements Cle
     // This class makes it easier to start a specimen import early in a test and wait for completion later.
     public class SpecimenImporter
     {
-        private final File _pipelineRoot;
         private final File[] _specimenArchives;
-        private final File _tempDir;
         private final String _studyFolderName;
         private final int _completeJobsExpected;
-        private final File[] _copiedArchives;
         private boolean _expectError = false;
 
-        public SpecimenImporter(File pipelineRoot, File specimenArchive, File tempDir, String studyFolderName, int completeJobsExpected)
+        public SpecimenImporter(File specimenArchive, String studyFolderName, int completeJobsExpected)
         {
-            this(pipelineRoot, new File[] { specimenArchive }, tempDir, studyFolderName, completeJobsExpected);
+            this(new File[] { specimenArchive }, studyFolderName, completeJobsExpected);
         }
 
-        public SpecimenImporter(File pipelineRoot, File[] specimenArchives, File tempDir, String studyFolderName, int completeJobsExpected)
+        public SpecimenImporter(File[] specimenArchives, String studyFolderName, int completeJobsExpected)
         {
-            _pipelineRoot = pipelineRoot;
             _specimenArchives = specimenArchives;
-            _tempDir = tempDir;
             _studyFolderName = studyFolderName;
             _completeJobsExpected = completeJobsExpected;
-
-            _copiedArchives = new File[_specimenArchives.length];
-            for (int i = 0; i < _specimenArchives.length; i++)
-            {
-                File specimenArchive = _specimenArchives[i];
-                String baseName = specimenArchive.getName();
-                baseName = baseName.substring(0, baseName.length() - ".specimens".length());
-                _copiedArchives[i] = new File(_tempDir, baseName + "_" + FastDateFormat.getInstance("MMddHHmmss").format(new Date()) + ".specimens");
-            }
         }
 
         public void setExpectError(boolean expectError)
@@ -2157,13 +2143,6 @@ public abstract class BaseWebDriverTest extends LabKeySiteWrapper implements Cle
             for (File specimenArchive : _specimenArchives)
                 log("  " + specimenArchive);
 
-            // copy the file into its own directory
-            for (int i = 0; i < _specimenArchives.length; i++)
-            {
-                File specimenArchive = _specimenArchives[i];
-                copyFile(specimenArchive, _copiedArchives[i]);
-            }
-
             clickFolder(_studyFolderName);
 
             int total = 0;
@@ -2178,25 +2157,15 @@ public abstract class BaseWebDriverTest extends LabKeySiteWrapper implements Cle
             clickAndWait(Locator.linkWithText("Manage Files"));
             clickButton("Process and Import Data", defaultWaitForPage);
 
-            // TempDir is somewhere underneath the pipeline root.  Determine each subdirectory we need to navigate to reach it.
-            File testDir = _tempDir;
-            List<String> dirNames = new ArrayList<>();
-
-            while (!_pipelineRoot.equals(testDir))
+            for (File specimenArchive : _specimenArchives)
             {
-                dirNames.add(0, testDir.getName());
-                testDir = testDir.getParentFile();
+                _fileBrowserHelper.uploadFile(specimenArchive);
             }
 
-            //Build folder path.
-            StringBuilder path = new StringBuilder("/");
-            for (String dir : dirNames)
-                path.append(dir).append("/");
-
-            _fileBrowserHelper.selectFileBrowserItem(path.toString());
-
-            for (File copiedArchive : _copiedArchives)
-                _fileBrowserHelper.checkFileBrowserFileCheckbox(copiedArchive.getName());
+            for (File specimenArchive : _specimenArchives)
+            {
+                _fileBrowserHelper.checkFileBrowserFileCheckbox(specimenArchive.getName());
+            }
             _fileBrowserHelper.selectImportDataAction("Import Specimen Data");
             clickButton("Start Import");
         }

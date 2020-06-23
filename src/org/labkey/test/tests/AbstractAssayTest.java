@@ -140,7 +140,10 @@ public abstract class AbstractAssayTest extends BaseWebDriverTest
     /**
      * Sets up the data pipeline for the specified project. This can be called from any page.
      * @param project name of project for which the pipeline should be setup
+     *
+     * @deprecated Don't set pipeline root unless it is being specifically tested. Imposes limits on server under test.
      */
+    @Deprecated
     @LogMethod
     protected void setupPipeline(String project) throws IOException
     {
