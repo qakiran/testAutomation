@@ -63,7 +63,7 @@ import static org.labkey.test.util.DataRegionTable.DataRegion;
 public class SpecimenTest extends SpecimenBaseTest
 {
     protected static final String PROJECT_NAME = "SpecimenVerifyProject";
-    private final File REQUEST_ATTACHMENT = StudyHelper.getStudySampleData("specimens/labs.txt");
+    private final File REQUEST_ATTACHMENT = TestFileUtils.getSampleData("study/specimens/labs.txt");
     private final PortalHelper _portalHelper = new PortalHelper(this);
     private final String[] SPECIMEN_IDS = {"AAA07XK5-01", "AAA07XK5-02"};
 
@@ -103,8 +103,6 @@ public class SpecimenTest extends SpecimenBaseTest
         setFormElement(Locator.name("label"), getStudyLabel());
         click(Locator.radioButtonByNameAndValue("simpleRepository", "false"));
         clickButton("Create Study");
-
-        setPipelineRoot(StudyHelper.getPipelinePath());
 
         setupRequestabilityRules();
         startSpecimenImport(1);

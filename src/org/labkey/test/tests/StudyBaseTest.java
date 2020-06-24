@@ -31,6 +31,7 @@ import org.labkey.test.util.APITestHelper;
 import org.labkey.test.util.LogMethod;
 import org.labkey.test.util.PortalHelper;
 import org.labkey.test.util.StudyHelper;
+import org.labkey.test.util.core.webdav.WebDavUploadHelper;
 import org.labkey.test.util.study.specimen.SpecimenHelper;
 import org.openqa.selenium.support.ui.Select;
 
@@ -141,35 +142,11 @@ public abstract class StudyBaseTest extends BaseWebDriverTest
     protected void doCleanup(boolean afterTest) throws TestTimeoutException
     {
         _containerHelper.deleteProject(getProjectName(), afterTest);
-
-        deleteLogFiles(".");
-        deleteLogFiles("datasets");
-        TestFileUtils.deleteDir(new File(StudyHelper.getPipelinePath(), "assaydata"));
-        TestFileUtils.deleteDir(new File(StudyHelper.getPipelinePath(), "reports_temp"));
     }
 
-    private void deleteLogFiles(String directoryName)
-    {
-        File dataRoot = new File(StudyHelper.getPipelinePath() + directoryName);
-        File[] logFiles = dataRoot.listFiles(new FilenameFilter(){
-            @Override
-            public boolean accept(File dir, String name)
-            {
-                return name.endsWith(".log");
-            }
-        });
-        if (null != logFiles)
-            for (File f : logFiles)
-                if (!f.delete())
-                    log("WARNING: couldn't delete log file " + f.getAbsolutePath());
-    }
-
-    protected void importStudy(){importStudy(null);}
-
-    protected void importStudy(String pipelinePath)
+    protected void importStudy()
     {
         initializeFolder();
-        initializePipeline(pipelinePath);
 
         // Start importing study.xml to create the study and load all the datasets.  We'll wait for this import to
         // complete before doing any further tests.
@@ -182,7 +159,6 @@ public abstract class StudyBaseTest extends BaseWebDriverTest
     protected void importStudy(File studyArchive, @Nullable String pipelinePath)
     {
         initializeFolder();
-        initializePipeline(pipelinePath);
         clickFolder(getFolderName());
         importFolderFromZip(studyArchive);
     }
@@ -237,13 +213,13 @@ public abstract class StudyBaseTest extends BaseWebDriverTest
 
     protected void initializePipeline()
     {
-        initializePipeline(StudyHelper.getPipelinePath());
+        initializePipeline(StudyHelper.getSampleStudy());
     }
     
-    protected void initializePipeline(String pipelinePath)
+    protected void initializePipeline(File studyFolder)
     {
-        if(pipelinePath==null)
-            pipelinePath = StudyHelper.getPipelinePath();
+        if (studyFolder == null)
+            studyFolder = StudyHelper.getSampleStudy();
 
         goToFolderManagement();
         clickAndWait(Locator.linkWithText("Folder Type"));
@@ -255,7 +231,7 @@ public abstract class StudyBaseTest extends BaseWebDriverTest
             portalHelper.addWebPart("Specimens");
             portalHelper.addWebPart("Views");
         });
-        setPipelineRoot(pipelinePath);
+        new WebDavUploadHelper(getCurrentContainerPath()).uploadDirectoryContents(studyFolder);
     }
 
     // Must be on study home page or "manage study" page

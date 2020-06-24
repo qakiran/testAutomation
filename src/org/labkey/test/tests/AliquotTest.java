@@ -69,8 +69,6 @@ public class AliquotTest extends SpecimenBaseTest
         click(Locator.radioButtonByNameAndValue("simpleRepository", "false"));
         clickButton("Create Study");
 
-        setPipelineRoot(StudyHelper.getPipelinePath());
-
         setupRequestabilityRules();
         startSpecimenImport(1);
         waitForSpecimenImport();

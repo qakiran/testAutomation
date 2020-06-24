@@ -63,8 +63,6 @@ public class SpecimenMultipleImportTest extends StudyBaseTest
         click(Locator.radioButtonByNameAndValue("simpleRepository", "false"));
         clickButton("Create Study");
 
-        setPipelineRoot(StudyHelper.getPipelinePath());
-
         startSpecimenImport(1, SPECIMEN_ARCHIVE_15);
         startSpecimenImport(2, SPECIMEN_ARCHIVE_19);
         startSpecimenImport(3, SPECIMEN_ARCHIVE_20);

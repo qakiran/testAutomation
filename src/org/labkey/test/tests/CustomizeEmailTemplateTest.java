@@ -96,7 +96,6 @@ public class CustomizeEmailTemplateTest extends SpecimenBaseTest
         click(Locator.radioButtonByNameAndValue("simpleRepository", "false"));
         clickButton("Create Study");
 
-        setPipelineRoot(StudyHelper.getPipelinePath());
         startSpecimenImport(1);
         waitForSpecimenImport();
         setupRequestStatuses();

@@ -467,17 +467,12 @@ public class StudyHelper
     @Deprecated
     public static String getPipelinePath()
     {
-        return getSampleStudy().getAbsolutePath();
+        return TestFileUtils.getSampleData("study/specimens").getParentFile().getAbsolutePath();
     }
 
     public static File getSampleStudy()
     {
-        return TestFileUtils.getSampleData("study/study.xml").getParentFile();
-    }
-
-    public static File getStudySampleData(String relativePath)
-    {
-        return TestFileUtils.getSampleData("study/" + relativePath);
+        return TestFileUtils.getSampleData("studies/Study001");
     }
 
     public static void uploadSampleStudy(String containerPath)

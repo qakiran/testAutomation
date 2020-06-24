@@ -2159,7 +2159,10 @@ public abstract class BaseWebDriverTest extends LabKeySiteWrapper implements Cle
 
             for (File specimenArchive : _specimenArchives)
             {
-                _fileBrowserHelper.uploadFile(specimenArchive);
+                if (!_fileBrowserHelper.fileIsPresent(specimenArchive.getName()))
+                {
+                    _fileBrowserHelper.uploadFile(specimenArchive);
+                }
             }
 
             for (File specimenArchive : _specimenArchives)

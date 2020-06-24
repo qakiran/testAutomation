@@ -66,7 +66,6 @@ public class SpecimenExportTest extends SpecimenBaseTest
         click(Locator.radioButtonByNameAndValue("simpleRepository", "false"));
         clickButton("Create Study");
 
-        setPipelineRoot(StudyHelper.getPipelinePath());
         startSpecimenImport(1);
         waitForSpecimenImport();
         setPipelineRootToDefault();

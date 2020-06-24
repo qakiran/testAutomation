@@ -57,8 +57,6 @@ public class SpecimenExtendedTest extends SpecimenBaseTest
 
         importStudyFromZip(TestFileUtils.getSampleData("studies/LabkeyDemoStudy.zip"));
 
-        setPipelineRoot(StudyHelper.getPipelinePath());
-
         setupRequestabilityRules();
         startSpecimenImport(2);
         waitForSpecimenImport();

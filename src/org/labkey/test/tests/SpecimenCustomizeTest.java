@@ -71,7 +71,6 @@ public class SpecimenCustomizeTest extends SpecimenBaseTest
     {
         configureSpecimenProperties();
 
-        setPipelineRoot(StudyHelper.getPipelinePath());
         startSpecimenImport(2, SPECIMEN_ARCHIVE);
         waitForSpecimenImport();
 
