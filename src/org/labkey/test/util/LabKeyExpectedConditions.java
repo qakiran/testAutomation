@@ -35,14 +35,28 @@ public class LabKeyExpectedConditions
         // Utility class
     }
 
+    public static abstract class LabKeyExpectedCondition<T> implements ExpectedCondition<T>
+    {
+        public boolean check(WebDriver driver)
+        {
+            return LabKeyExpectedConditions.check(this, driver);
+        }
+    }
+
+    public static boolean check(ExpectedCondition<?> ec, WebDriver driver)
+    {
+        Object value = ec.apply(driver);
+        return value != null && !Boolean.FALSE.equals(value);
+    }
+
     /**
      * An expectation for checking that an element has stopped moving
      *
      * @param loc the container element which should have css style, "position: static"
      * @return element when animation is complete
      */
-    public static ExpectedCondition<WebElement> animationIsDone(final By loc) {
-        return new ExpectedCondition<>() {
+    public static LabKeyExpectedCondition<WebElement> animationIsDone(final By loc) {
+        return new LabKeyExpectedCondition<>() {
             @Override
             public WebElement apply(WebDriver driver)
             {
@@ -71,8 +85,8 @@ public class LabKeyExpectedConditions
      * @param el the element who's position changes
      * @return the element when animation is complete
      */
-    public static ExpectedCondition<WebElement> animationIsDone(final WebElement el) {
-        return new ExpectedCondition<>() {
+    public static LabKeyExpectedCondition<WebElement> animationIsDone(final WebElement el) {
+        return new LabKeyExpectedCondition<>() {
             @Override
             public WebElement apply(WebDriver driver)
             {
@@ -107,8 +121,8 @@ public class LabKeyExpectedConditions
         };
     }
 
-    public static ExpectedCondition<WebElement> elementIsEnabled(final Locator loc) {
-        return new ExpectedCondition<>()
+    public static LabKeyExpectedCondition<WebElement> elementIsEnabled(final Locator loc) {
+        return new LabKeyExpectedCondition<>()
         {
             @Override
             public WebElement apply(WebDriver driver)
@@ -137,11 +151,11 @@ public class LabKeyExpectedConditions
         };
     }
 
-    public static ExpectedCondition<Boolean> clickUntilStale(final WebElement element)
+    public static LabKeyExpectedCondition<Boolean> clickUntilStale(final WebElement element)
     {
-        return new ExpectedCondition<>()
+        return new LabKeyExpectedCondition<>()
         {
-            ExpectedCondition<Boolean> staleCheck = ExpectedConditions.stalenessOf(element);
+            final ExpectedCondition<Boolean> staleCheck = ExpectedConditions.stalenessOf(element);
 
             @Override
             public Boolean apply(WebDriver ignored)
@@ -174,9 +188,9 @@ public class LabKeyExpectedConditions
      * @return the list of WebElements once they are located
      * @see org.labkey.test.selenium.LazyWebElement
      */
-    public static ExpectedCondition<List<WebElement>> visibilityOfAllElements(WebElement... elements)
+    public static LabKeyExpectedCondition<List<WebElement>> visibilityOfAllElements(WebElement... elements)
     {
-        return new ExpectedCondition<>()
+        return new LabKeyExpectedCondition<>()
         {
             final ExpectedCondition<List<WebElement>> wrapped = ExpectedConditions.visibilityOfAllElements(elements);
 
