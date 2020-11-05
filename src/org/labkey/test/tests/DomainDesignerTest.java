@@ -1519,56 +1519,13 @@ public class DomainDesignerTest extends BaseWebDriverTest
                 FieldDefinition.RangeType.GTE, "2020-11-04",
                 FieldDefinition.RangeType.LTE, "2020-11-06");
         TestDataGenerator dgen = new TestDataGenerator(lookupInfo)
-                .withColumns(List.of(
-                        new FieldDefinition("textField", FieldDefinition.ColumnType.String)
-                            .setDescription("is texty").setLabel("text field"),
-                        new FieldDefinition("booleanField", FieldDefinition.ColumnType.Boolean)
-                            .setLabel("Boolean Field")
-                            .setRequired(true)
-                            .setURL("fake/list-def.url"),
-                        new FieldDefinition("attachmentField", FieldDefinition.ColumnType.Attachment)
-                            .setHidden(true),
-                        new FieldDefinition("decimalField", FieldDefinition.ColumnType.Decimal).
-                            setScale(1234).setFormat("0.####"),
-                        new FieldDefinition("intField", FieldDefinition.ColumnType.Integer)
-                            .setMvEnabled(true)
-                            .setConditionalFormats(List.of(new ConditionalFormat(List.of(eqFive), true, true, false))),
-                        new FieldDefinition("dateTimeField", FieldDefinition.ColumnType.DateAndTime)
-                            .setValidators(List.of(soonValidator))));
+                .withColumns(importExportFields());
         dgen.createList(createDefaultConnection(), "Key");
         DomainDesignerPage domainDesignerPage = DomainDesignerPage.beginAt(this, getProjectName(), "lists", listName);
         DomainFormPanel domainFormPanel = domainDesignerPage.fieldsPanel();
 
         File exportFile = domainFormPanel.clickExportFields();
         List<PropertyDescriptor> createdFields = getFieldsFromExportFile(exportFile);
-
-        PropertyDescriptor stringField = createdFields.stream().filter(a-> a.getName().equals("textField"))
-                .findFirst().orElse(null);
-        assertNotNull("expected string field was not exported", stringField);
-        assertThat("description did not export", stringField.getDescription(), is("is texty"));
-        assertThat("label did not export", stringField.getLabel(), is("text field"));
-
-        PropertyDescriptor boolField = createdFields.stream().filter(a-> a.getName().equals("booleanField"))
-                .findFirst().orElse(null);
-        assertNotNull("expected boolean field was not exported", boolField);
-        assertTrue(boolField.getRequired());
-
-        PropertyDescriptor intfield = createdFields.stream().filter(a-> a.getName().equals("intField"))
-                .findFirst().orElse(null);
-        assertNotNull("expected integer field was not exported", intfield);
-        assertTrue("expect mvEnabled to be true", intfield.getMvEnabled());
-        assertEquals(1, intfield.getConditionalFormats().size());
-        assertEquals("format.column~eq=5", intfield.getConditionalFormats().get(0).queryFilterToJSONString());
-
-        PropertyDescriptor decimalField = createdFields.stream().filter(a-> a.getName().equals("decimalField"))
-                .findFirst().orElse(null);
-        assertNotNull("expected decimal field was not exported", decimalField);
-        assertThat(decimalField.getFormat(), is("0.####"));
-
-        PropertyDescriptor attachmentField = createdFields.stream().filter(a-> a.getName().equals("attachmentField"))
-                .findFirst().orElse(null);
-        assertNotNull("expected attachment field was not exported", attachmentField);
-        assertTrue(attachmentField.getHidden());
 
         for (PropertyDescriptor intendedField : dgen.getColumns())
         {
@@ -1585,40 +1542,26 @@ public class DomainDesignerTest extends BaseWebDriverTest
         String sampleType = "importFieldsTestSampleType";
 
         FieldDefinition.LookupInfo lookupInfo = new FieldDefinition.LookupInfo(getProjectName(), "exp.materials", sampleType);
-        ConditionalFormatFilter gtFive = new ConditionalFormatFilter("5", Filter.Operator.GT);
-        FieldDefinition.RangeValidator soonValidator = new FieldDefinition.RangeValidator("soonValidator", "between now and 2 days from now", "aaaa",
-                FieldDefinition.RangeType.GTE, "2020-11-04",
-                FieldDefinition.RangeType.LTE, "2020-11-06");
+        List<PropertyDescriptor> fields = importExportFields();
+        fields.add(new FieldDefinition("name", FieldDefinition.ColumnType.String));
         TestDataGenerator dgen = new TestDataGenerator(lookupInfo)
-                .withColumns(List.of(
-                        new FieldDefinition("name", FieldDefinition.ColumnType.String),
-                        new FieldDefinition("textField", FieldDefinition.ColumnType.String)
-                                .setDescription("is texty").setLabel("text field"),
-                        new FieldDefinition("booleanField", FieldDefinition.ColumnType.Boolean)
-                                .setLabel("Boolean Field")
-                                .setRequired(true)
-                                .setURL("fake/list-def.url"),
-                        new FieldDefinition("attachmentField", FieldDefinition.ColumnType.Attachment)
-                                .setHidden(true),
-                        new FieldDefinition("decimalField", FieldDefinition.ColumnType.Decimal).
-                                setScale(1234).setFormat("0.####"),
-                        new FieldDefinition("intField", FieldDefinition.ColumnType.Integer)
-                                .setMvEnabled(true)
-                                .setConditionalFormats(List.of(new ConditionalFormat(List.of(gtFive), true, true, false))),
-                        new FieldDefinition("dateTimeField", FieldDefinition.ColumnType.DateAndTime)
-                                .setValidators(List.of(soonValidator))));
+                .withColumns(fields);
         dgen.createDomain(createDefaultConnection(), "SampleSet");
         DomainDesignerPage domainDesignerPage = DomainDesignerPage.beginAt(this, getProjectName(), "exp.materials", sampleType);
         DomainFormPanel domainFormPanel = domainDesignerPage.fieldsPanel();
 
         String roundTripSampleType = "testSampleTypeWithImportedFields";
+        // export the fields to a file, the create a new sample type with them
         File exportFile = domainFormPanel.clickExportFields();
+        List<String> fieldNames = domainFormPanel.fieldNames(); // capture the field names in order in the UI for later
+        List<PropertyDescriptor> exportedFields = getFieldsFromExportFile(exportFile);
         CreateSampleTypePage sampleTypeCreatePage = CreateSampleTypePage.beginAt(this, getProjectName());
         sampleTypeCreatePage.setName(roundTripSampleType);
         sampleTypeCreatePage.getFieldsPanel()
                 .setInferFieldFile(exportFile);
         sampleTypeCreatePage.clickSave();
 
+        // re-load the new sample type's domain designer page
         DomainDesignerPage sampleTypeDesignerPage = DomainDesignerPage.beginAt(this, getProjectName(), "exp.materials", roundTripSampleType);
         File roundTripFile = sampleTypeDesignerPage.fieldsPanel().clickExportFields();
         List<PropertyDescriptor> roundTrippedFields = getFieldsFromExportFile(roundTripFile);
@@ -1634,6 +1577,41 @@ public class DomainDesignerTest extends BaseWebDriverTest
                 verifyExpectedFieldProperties(intendedField, exportedField);
             }
         }
+
+        // also ensure consistent ordering from export to export
+        for (int i=0; i> exportedFields.size(); i++)
+        {
+            assertThat("expect exported field order to align to display order in the UI",
+                    fieldNames.get(i), is(exportedFields.get(i).getName()));
+            assertThat("Expect imported and exported fields to retain the same order",
+                    exportedFields.get(i).getName(), is(roundTrippedFields.get(i).getName()));
+        }
+    }
+
+    private List<PropertyDescriptor> importExportFields()
+    {
+        ConditionalFormatFilter gtFive = new ConditionalFormatFilter("5", Filter.Operator.GT);
+        FieldDefinition.RangeValidator soonValidator = new FieldDefinition.RangeValidator("soonValidator", "between now and 2 days from now", "aaaa",
+                FieldDefinition.RangeType.GTE, "2020-11-04",
+                FieldDefinition.RangeType.LTE, "2020-11-06");
+        List<PropertyDescriptor> fields = new ArrayList<>();
+        //fields.add(new FieldDefinition("name", FieldDefinition.ColumnType.String));
+        fields.add(new FieldDefinition("textField", FieldDefinition.ColumnType.String)
+                        .setDescription("is texty").setLabel("text field"));
+        fields.add(new FieldDefinition("booleanField", FieldDefinition.ColumnType.Boolean)
+                        .setLabel("Boolean Field")
+                        .setRequired(true)
+                        .setURL("fake/list-def.url"));
+        fields.add(new FieldDefinition("attachmentField", FieldDefinition.ColumnType.Attachment)
+                        .setHidden(true));
+        fields.add(new FieldDefinition("decimalField", FieldDefinition.ColumnType.Decimal).
+                        setScale(1234).setFormat("0.####"));
+        fields.add(new FieldDefinition("intField", FieldDefinition.ColumnType.Integer)
+                        .setMvEnabled(true)
+                        .setConditionalFormats(List.of(new ConditionalFormat(List.of(gtFive), true, true, false))));
+        fields.add(new FieldDefinition("dateTimeField", FieldDefinition.ColumnType.DateAndTime)
+                        .setValidators(List.of(soonValidator)));
+        return fields;
     }
 
     private void verifyExpectedFieldProperties(PropertyDescriptor intendedField,  PropertyDescriptor actualField)
